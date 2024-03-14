@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Inter } from "next/font/google";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import { Button } from "antd/lib";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -43,17 +44,10 @@ export default function Home() {
                 placeholder="Enter location"
               />
             </div>
-            <div class="flex flex-wrap w-full mb-20 justify-center items-center text-center">
-              <button
-                style={{
-                  padding: "10px 25px",
-                  backgroundColor: "blue",
-                  color: "white",
-                }}
-                class="rounded-3xl"
-              >
+            <div class="flex flex-wrap w-full mb-20 justify-center items-center text-center px-[25rem]">
+              <Button type="primary" className="text-black bg-blue-500" block>
                 Search
-              </button>
+              </Button>
             </div>
 
             <div class="flex flex-wrap -m-4">
@@ -205,9 +199,9 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <button class="flex mx-auto mt-16 text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">
+            <Button class="flex mx-auto mt-16 text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">
               Button
-            </button>
+            </Button>
           </div>
         </section>
       </>

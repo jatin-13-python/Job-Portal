@@ -1,3 +1,4 @@
+import { Button } from "antd/lib";
 import Link from "next/link";
 
 const Header = () => {
@@ -27,29 +28,14 @@ const Header = () => {
           </nav>
 
           <Link href="/login">
-            <button
-              style={{
-                padding: "10px 25px",
-                backgroundColor: "blue",
-                color: "white",
-                marginRight: "10px",
-                borderRadius: ".75rem",
-              }}
-            >
+            <Button type="primary" className="mr-[.5rem]" ghost>
               Login
-            </button>
+            </Button>
           </Link>
           <Link href="/register">
-            <button
-              style={{
-                padding: "10px 25px",
-                backgroundColor: "blue",
-                color: "white",
-                borderRadius: ".75rem",
-              }}
-            >
+            <Button type="primary" ghost>
               Register
-            </button>
+            </Button>
           </Link>
         </div>
       </header>
