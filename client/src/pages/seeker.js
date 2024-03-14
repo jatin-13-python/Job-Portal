@@ -18,6 +18,8 @@ const seeker = () => {
     }
   };
 
+  // adding comments
+
   return (
     <>
       <div>
