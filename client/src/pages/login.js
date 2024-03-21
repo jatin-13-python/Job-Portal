@@ -1,42 +1,42 @@
-import { Button } from "antd/lib";
+import { Button, message } from "antd/lib";
 import { Form, Input } from "antd/lib";
-import { useState, React, useEffect } from "react";
-import axios from "axios"; // Import Axios for making HTTP requests
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/router";
+import { stringify } from 'querystring';
+
 
 const Login = () => {
-  const [csrfToken, setCsrfToken] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isUser, setIsUser] = useState(null);
+  const router = useRouter();
 
-  // Function to get CSRF token from cookies
-  const getCsrfToken = () => {
-    const csrfToken = document.cookie.match(/csrftoken=([^;]+)/);
-    if (csrfToken) {
-      return csrfToken[1];
-    } else {
-      return "";
+
+  const handleLogin = async (values) => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/login/admin-login/",
+        values
+      );
+  
+      const token = response.data.token;
+      localStorage.setItem("token", token);
+  
+      const user = response.data.user;
+  
+      // Pass user data as query parameter
+      router.push({
+        pathname: "/home",
+        query: { user: JSON.stringify(user) },
+      });
+    } catch (error) {
+      message.error("Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
     }
   };
-
-  console.log({ csrfToken });
-
-  // Fetch CSRF token on component mount
-  useEffect(() => {
-    setCsrfToken(getCsrfToken());
-  }, []);
-
-  const handleLogin = (values) => {
-    // Send login data to Django URL using Axios with CSRF token in payload
-    axios
-      .post("http://127.0.0.1:8000/api/login/admin-login/", {
-        ...values,
-        csrfmiddlewaretoken: csrfToken,
-      })
-      .then((response) => {
-        console.log(response.data); // Handle response data as needed
-      })
-      .catch((error) => {
-        console.error("Error during login:", error);
-      });
-  };
+  
 
   return (
     <div className="flex justify-center">
@@ -51,7 +51,9 @@ const Login = () => {
               <Input placeholder="Password" type="password" />
             </Form.Item>
             <Form.Item>
-              <Button htmlType="submit">Sign In</Button>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Sign In
+              </Button>
             </Form.Item>
           </Form>
         </div>

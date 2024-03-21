@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.18.4",
+    "@mui/icons-material": "^5.15.14",
     "@reduxjs/toolkit": "^2.2.1",
     "@zeit/next-less": "^1.0.1",
     "antd": "^5.14.2",
