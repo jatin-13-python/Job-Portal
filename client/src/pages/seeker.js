@@ -1,24 +1,49 @@
 import { Form, Input, Select, Button, Upload } from "antd/lib";
 import React, { useState } from "react";
 import { UploadOutlined } from "@ant-design/icons/lib";
-const seeker = () => {
+
+const { Option } = Select;
+
+const Seeker = () => {
   const [isStatus, setIsStatus] = useState();
   const [isResume, setIsResume] = useState(null);
+  const [form] = Form.useForm();
+
   const onChange = (value) => {
     setIsStatus(value);
   };
 
   const handleUpload = (file) => setIsResume(file);
 
-  const handleAddSeeker = (value) => {
-    if (value) {
-      value.status = isStatus;
-      value.resume = isResume;
-      console.log(value);
-    }
-  };
+  const handleAddSeeker = () => {
+    const formData = new FormData();
+    const formValues = form.getFieldsValue();
 
-  // adding comments
+    formData.append("name", formValues.name);
+    formData.append("email", formValues.email);
+    formData.append("contact", formValues.contact);
+    formData.append("status", isStatus);
+    formData.append("resume", isResume);
+
+    console.log({ formData });
+
+    fetch("http://127.0.0.1:8000/api/seeker-register/register-seeker/", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        if (response.ok) {
+          console.log("Seeker registered successfully");
+          // Handle success
+        } else {
+          console.error("Failed to register seeker");
+          // Handle failure
+        }
+      })
+      .catch((error) => {
+        console.error("Error registering seeker:", error);
+      });
+  };
 
   return (
     <>
@@ -27,7 +52,7 @@ const seeker = () => {
           Register as Seeker
         </div>
         <div className="px-80">
-          <Form labelCol={{ span: 24 }} onFinish={handleAddSeeker}>
+          <Form form={form} labelCol={{ span: 24 }} onFinish={handleAddSeeker}>
             <Form.Item label="Name" name="name">
               <Input placeholder="Enter name" />
             </Form.Item>
@@ -38,21 +63,10 @@ const seeker = () => {
               <Input placeholder="Enter number" />
             </Form.Item>
             <Form.Item label="Work Status" name="status">
-              {" "}
-              <Select
-                onChange={onChange}
-                options={[
-                  {
-                    value: "fresher",
-                    label: "I m Fresher",
-                  },
-                  {
-                    value: "experienced",
-                    label: "I m Experienced",
-                  },
-                ]}
-                placeholder="Select status"
-              />
+              <Select onChange={onChange} placeholder="Select status">
+                <Option value="fresher">I'm Fresher</Option>
+                <Option value="experienced">I'm Experienced</Option>
+              </Select>
             </Form.Item>
             <Form.Item label="Resume Upload" name="resume">
               <Upload
@@ -77,4 +91,4 @@ const seeker = () => {
   );
 };
 
-export default seeker;
+export default Seeker;

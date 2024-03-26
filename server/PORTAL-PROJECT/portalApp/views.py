@@ -36,8 +36,6 @@ def seekerRegisterPage(request):
     return render(request, "basicApp/register_as_seeker.html", context)
 
 
-
-
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def admin_login(request):
@@ -46,12 +44,20 @@ def admin_login(request):
     username = data.get("username", "")
     password = data.get("password", "")
 
+    print(username)
+    print(password)
+
     # Authenticate the user
     user = authenticate(request, username=username, password=password)
 
+    print(user)
+
     if user is not None:
+        print("user is true?")
         # If authentication is successful, generate or retrieve a token
         token, _ = Token.objects.get_or_create(user=user)
+
+        print(token)
 
         # Retrieve additional user data
         try:
@@ -77,20 +83,30 @@ def admin_login(request):
         )
 
 
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.http import QueryDict
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from .models import User, Role, Profile, Seeker
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def seekerRegistration(request):
     try:
         # Extracting data from request
-        seeker_data = {
-            "name": request.data.get("fullName", ""),
-            "email": request.data.get("email", ""),
-            "phone": request.data.get("mobileNumber", ""),
-            "work_status": request.data.get("workStatus", ""),
-        }
-
-        # File handling
-        resume_file = request.data.get("resume", None)
+        if isinstance(request.data, QueryDict):
+            seeker_data = {
+                "name": request.data.get("name", ""),
+                "email": request.data.get("email", ""),
+                "phone": request.data.get("contact", ""),
+                "work_status": request.data.get("status", ""),
+            }
+            resume_file = request.FILES.get("resume", None)
+        else:
+            # Handle the case when request data is not QueryDict
+            return Response({"error": "Invalid data format"}, status=400)
 
         # Create a new User instance
         user_data = {
@@ -98,7 +114,6 @@ def seekerRegistration(request):
             "email": seeker_data["email"],
             "password": "Password@123",
         }
-
         user = User.objects.create_user(**user_data)
 
         # Create a new Role instance or get an existing one
@@ -136,15 +151,8 @@ def companyRegistration(request):
     recruiter_role, created = Role.objects.get_or_create(name="recruiter")
 
     try:
-        # Generate a unique username based on the email
-        username = email.split("@")[
-            0
-        ]  # You can customize this logic based on your requirements
-
         # Creating a new User instance with a unique username
-        user = User.objects.create_user(
-            username=username, email=email, password=password
-        )
+        user = User.objects.create_user(username=email, email=email, password=password)
 
         # Creating a new Profile instance with the 'recruiter' role
         profile = Profile.objects.create(user=user)
@@ -155,8 +163,13 @@ def companyRegistration(request):
             user=profile, name=name, email=email, company=company, phone=phone
         )
 
-        # Return a success response
-        return Response({"message": "Recruiter created successfully"})
+        # Generate and return authentication token
+        token, _ = Token.objects.get_or_create(user=user)
+
+        # Return a success response with token
+        return Response(
+            {"message": "Recruiter created successfully", "token": token.key}
+        )
 
     except IntegrityError as e:
         # Handling the case where the username is not unique

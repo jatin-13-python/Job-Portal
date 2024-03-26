@@ -1,11 +1,20 @@
 import React from "react";
-import { Form, Input, Select, Upload, Button } from "antd/lib";
+import { Form, Input, Button } from "antd/lib";
+import axios from "axios";
 
-const handleAddCompany = (values) => {
-  console.log(values);
-};
+const Company = () => {
+  const handleAddCompany = async (values) => {
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/company-register/register-company/",
+        values
+      );
+      console.log("Response:", response.data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
-const company = () => {
   return (
     <div>
       <div className="p-10 mb-[1rem]">
@@ -19,7 +28,7 @@ const company = () => {
               <Input placeholder="Enter email" />
             </Form.Item>
             <Form.Item label="Password" name="password">
-              <Input placeholder="Enter password" />
+              <Input.Password placeholder="Enter password" />
             </Form.Item>
             <Form.Item>
               <Button
@@ -39,4 +48,4 @@ const company = () => {
   );
 };
 
-export default company;
+export default Company;
