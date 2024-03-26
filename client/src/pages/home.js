@@ -1,6 +1,4 @@
 import React from "react";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
 import { Avatar, Button, Card, Progress, Tabs } from "antd/lib";
 import {
   InfoCircleOutlined,

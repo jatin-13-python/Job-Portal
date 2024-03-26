@@ -1,42 +1,52 @@
-import { Button, message } from "antd/lib";
-import { Form, Input } from "antd/lib";
+import { Button, Form, Input, message } from "antd/lib";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "@/redux/services/auth"; // Update the import path accordingly
 import { useRouter } from "next/router";
-import { stringify } from 'querystring';
-
 
 const Login = () => {
-  const [loading, setLoading] = useState(false);
-  const [isUser, setIsUser] = useState(null);
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  });
   const router = useRouter();
+  const dispatch = useDispatch();
+  const loading = useSelector((state) => state.auth.loading);
+  const error = useSelector((state) => state.auth.error);
+  const user = useSelector((state) => state.auth.user);
 
+  const userRole = user?.roles[0];
 
-  const handleLogin = async (values) => {
-    setLoading(true);
+  useEffect(() => {
+    if (error) {
+      message.error(error); // Display error message if there's an error
+    }
+  }, [error]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleLogin = async () => {
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/login/admin-login/",
-        values
-      );
-  
-      const token = response.data.token;
-      localStorage.setItem("token", token);
-  
-      const user = response.data.user;
-  
-      // Pass user data as query parameter
-      router.push({
-        pathname: "/home",
-        query: { user: JSON.stringify(user) },
-      });
+      await dispatch(loginUser(formData)); // Dispatch the loginUser async thunk with form data
+      if (user && userRole === "admin") {
+        router.push("/admin/home");
+      } else if (user && userRole === "recruiter") {
+        router.push("/recruiter/home");
+      } else if (user && userRole === "seeker") {
+        router.push("/seeker/home");
+      } else if (user) {
+        router.push("/home");
+      }
     } catch (error) {
-      message.error("Login failed. Please check your credentials.");
-    } finally {
-      setLoading(false);
+      console.error("Login failed:", error);
     }
   };
-  
 
   return (
     <div className="flex justify-center">
@@ -45,10 +55,21 @@ const Login = () => {
         <div className="px-10">
           <Form labelCol={{ span: 24 }} onFinish={handleLogin}>
             <Form.Item label="Username" name="username">
-              <Input placeholder="Username" />
+              <Input
+                placeholder="Username"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+              />
             </Form.Item>
             <Form.Item label="Password" name="password">
-              <Input placeholder="Password" type="password" />
+              <Input
+                placeholder="Password"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+              />
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" loading={loading}>

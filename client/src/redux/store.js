@@ -1,14 +1,12 @@
+// store.js
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./slices/authSlice";
-import notificationReducer from "./slices/notificationSlice";
-import projectReducer from "./slices/projectSlice";
+import authSlice from "./slice/authSlice"; 
 
 const store = configureStore({
   reducer: {
-    auth: authReducer,
-    notifications: notificationReducer,
-    projects: projectReducer,
+    auth: authSlice,
+    // Add other reducers if needed
   },
 });
 
-export { store };
+export default store;
